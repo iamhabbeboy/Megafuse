@@ -1,70 +1,66 @@
 <?php
+  require_once('./db/Model.php');
 
-function get_time($db, $user)
-{
+  class Beleful_App {
+	  static private $pdo;
+	  var 
+	  $shop_logo, $shop_name, $shop_addr, $shop_des, $shop_meal;
+	  public function __construct()
+	  {
+		 self::$pdo = new Model();
+	  }
 
-   $sql = $db -> find_by_sql(" SELECT * FROM practisetime ORDER BY id DESC LIMIT 1");
-   $fetch = $sql -> fetch();
+	  /*
+	  * @var id int 
+	  */
+	  public function get_shop_property( $shop_id )
+	  {
+		  $sql = self::$pdo 
+		  -> find_by_fields('shops', array('id' => $shop_id ));
 
-   $time = $fetch['hour'].':'. $fetch['minute'].':'.$fetch['second'];
-   $date = date('d-m-y h:i');
+		  if ($sql ->rowCount() > 0 )
+		  {
+			  $fetch = $sql -> fetch();
+			  $this -> shop_logo = $fetch['logo'];
+			  $this -> shop_name = $fetch['name'];
+			  $this -> shop_addr = $fetch['address'];
+			  $this -> shop_des = $fetch['description'];
+			  $this -> shop_meal = $fetch['meals_offered'];
+		  } else {
 
-   $st = $db -> find_by_fields('countdown', array('loginkey' => $user));
-   $n = '';
+		  }
+	  }
 
-   if ($st ->rowCount() > 0)
-   {
-   	  $ft1 = $st->fetch();
-   	  $t = $ft1['countdown'];
-   	  $n = $t;
-   	
-   } else {
+	  /*
+	  * @var 
+	  */
+	  public function get_shop()
+	  {
+		  $args = func_get_args();
+		  //return count($args);
+		  $query = self::$pdo -> find_by_sql("SELECT * FROM shops ORDER BY id DESC");
+		  if ($query -> rowCount() > 0)
+		  {
+			  while( $fetch = $query -> fetch())
+			  {
+				?>
+			   <div class="col-md-2">
+            	<div class="thumbnail">
+              <img src="./images/9.jpg" alt="Loading" class="img-responsive"
+              style="max-width: 300px; width: 100%">
+              <div class="caption">
+                <h3><?php echo $fetch['name']?></h3>
+                <p><?php echo $fetch['address']?></p>
+                <p><a href="view?q=<?php echo $fetch['id'] . '-' . str_replace(' ', '-', strtolower($fetch['name']))?>" class="btn btn-primary" role="button">Browse</a> </p>
+              </div>
+				</div>
+			</div>
+				<?php
+			  }
+		  }   else {
+			  echo "<h4 style='color: #ccc'>No Restaurants Added Yet </h4>";
+		  }
+	  }
 
-   	   $sav = $db ->save_record('countdown',
-   	   array('loginkey' => $user, 'countdown' => $time, 'date' => $date));
-   	   //$n = preg_replace('/:/', ' : ',$time);
-   	   $t = explode(':', $time);
-   	   $h = ($t[0] < 10 ) ? '0'.$t[0] : $t[0];
-   	   $m = ($t[1] < 10 ) ? '0'.$t[1] : $t[1];
-   	   $s = ($t[2] < 10 ) ? '0'.$t[2] : $t[2];
-   	   $n = $h.' : '. $m. ' : '. $s;
-   }
-   return $n;
-   //return '0'.$fetch['hour'] .' : '. $fetch['minute']. ' : '. '0'.$fetch['second'];
-}
-
-function get_status($db, $user)
-{
-
-	$sql = $db -> find_by_fields("studentlog", array('loginkey' => $user));
-    $ft = $sql->fetch();
-    return $ft['count'];
-}
-
-function get_answer($db, $id )
-{
-	$sql = $db -> find_by_fields("question", array('id' => $id ));
-	$ft = $sql->fetch();
-	return $ft['answer'];
-}
-
-function get_photo($dir, $db, $matric )
-{
-	$query = $db -> find_by_fields('studentrecord',
-	array('loginkey' => $matric ));
-	$ft = $query->fetch();
-	return (empty($ft['photo']) ? $dir.'/avatar.png' : $dir.'/'.$ft['photo'] );
-}
-
-
-  function nav_map($db, $user, $_id)
-  {
-  	$sql = $db -> find_by_fields('tmp_answer',
-  	array('username' => $user, '&question' => $_id));
-  	if ($sql->rowCount() > 0)
-  	{
-  		return 'true';
-  	} else {
-  		return 'false';
-  	}
+	
   }

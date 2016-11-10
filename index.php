@@ -1,7 +1,6 @@
-<?php session_start();
-$start = microtime(true);
+<?php
 ob_start();
-error_reporting(0);
+//error_reporting(0);
 require 'db/Model.php';
 require 'app/Render.php';
 //$db = new Model();
@@ -19,7 +18,6 @@ if(isset($_GET['p']))
 
 }
 
-$result = round(microtime(true) - $start, 4);
 /*print "<center style='color: #FFF'>
 <small class='smaller'> Page loads @ $result seconds</small></center>";
 */
